@@ -1,0 +1,57 @@
+package com.absensi.absensi_app.services.impl;
+
+import com.absensi.absensi_app.dto.request.RegisterRequest;
+import com.absensi.absensi_app.dto.response.UserResponse;
+import com.absensi.absensi_app.entity.User;
+import com.absensi.absensi_app.repository.UserRepository;
+import com.absensi.absensi_app.services.UserService;
+import com.absensi.absensi_app.util.UserMapper;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class UserServiceImpl implements UserService {
+
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
+
+    @Override
+    public UserResponse findById(Long id) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User tidak ditemukan!"));
+
+        return userMapper.toResponse(user);
+    }
+
+    @Override
+    public List<UserResponse> findAll() {
+        List<User> users = userRepository.findAll();
+        return userMapper.toResponseList(users);
+    }
+
+    @Transactional
+    @Override
+    public void delete(Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User tidak ditemukan!"));
+
+        userRepository.delete(user);
+    }
+
+    @Transactional
+    @Override
+    public UserResponse update(Long id, RegisterRequest request) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User tidak ditemukan!"));
+
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+
+        User updatedUser = userRepository.save(user);
+
+        return userMapper.toResponse(updatedUser);
+    }
+}
