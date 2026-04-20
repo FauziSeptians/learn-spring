@@ -30,7 +30,7 @@ public class AuthServiceImpl implements AuthService {
     public UserResponse register(RegisterRequest request) {
 
         if(userRepository.existsByEmail(request.getEmail())){
-            throw new RuntimeException("Email sudah terdaftar!");
+            throw new com.absensi.absensi_app.exception.ApiException("Email sudah terdaftar!", org.springframework.http.HttpStatus.BAD_REQUEST);
         }
 
         String hashedPassword = passwordEncoder.encode(request.getPassword());
@@ -48,14 +48,13 @@ public class AuthServiceImpl implements AuthService {
         boolean isUserExist = userRepository.existsByEmail(request.getEmail());
 
         if(!isUserExist){
-            throw  new RuntimeException("User tidak terdaftar");
+            throw new com.absensi.absensi_app.exception.ApiException("User tidak terdaftar", org.springframework.http.HttpStatus.NOT_FOUND);
         }
 
         User user = userRepository.findByEmail(request.getEmail());
-        String password = user.getPassword();
 
-        if(passwordEncoder.matches(password, request.getPassword())){
-            throw new RuntimeException("Data yang kamu masukan salah!");
+        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
+            throw new com.absensi.absensi_app.exception.ApiException("Email atau Password salah!", org.springframework.http.HttpStatus.UNAUTHORIZED);
         }
 
         return LoginResponse.builder().email(user.getEmail()).name(user.getName()).token("LOREM").build();
