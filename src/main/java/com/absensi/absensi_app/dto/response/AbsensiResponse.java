@@ -1,4 +1,4 @@
-package com.absensi.absensi_app.dto.response.absensi;
+package com.absensi.absensi_app.dto.response;
 
 import com.absensi.absensi_app.enums.AbsensiStatus;
 import lombok.Builder;
