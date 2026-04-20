@@ -5,5 +5,6 @@ import lombok.Data;
 
 @Data
 public class CheckInRequest {
+    private String type;
     private String keterangan;
 }
