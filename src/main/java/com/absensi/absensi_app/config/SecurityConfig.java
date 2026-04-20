@@ -17,28 +17,23 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // ✅ Disable CSRF
-                .csrf(AbstractHttpConfigurer::disable)
-
-                // ✅ Allow iframe H2 Console
-                .headers(headers -> headers
-                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
-                )
-
-                // ✅ Whitelist H2 Console & Auth
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/h2-console/**").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/users/**").permitAll()
-                        .requestMatchers(
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**",
-                                "/v3/api-docs.yaml"
-                        ).permitAll()
-                        .requestMatchers("/api/absensi/**").permitAll()
-                        .anyRequest().authenticated()
-                );
+            .csrf(AbstractHttpConfigurer::disable)
+            .headers(headers -> headers
+                .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
+            )
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/h2-console/**").permitAll()
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/users/**").permitAll()
+                .requestMatchers(
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/v3/api-docs/**",
+                    "/v3/api-docs.yaml"
+                ).permitAll()
+                .requestMatchers("/api/absensi/**").permitAll()
+                .anyRequest().authenticated()
+            );
 
         return http.build();
     }

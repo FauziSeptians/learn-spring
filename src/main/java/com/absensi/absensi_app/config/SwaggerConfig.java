@@ -24,7 +24,6 @@ public class SwaggerConfig {
                                 .email("admin@absensi.com")
                         )
                 )
-                // ✅ Setup JWT Bearer Token di Swagger
                 .addSecurityItem(new SecurityRequirement()
                         .addList("Bearer Authentication")
                 )
