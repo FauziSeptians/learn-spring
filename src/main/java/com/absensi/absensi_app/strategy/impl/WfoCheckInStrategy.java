@@ -3,6 +3,7 @@ package com.absensi.absensi_app.strategy.impl;
 import com.absensi.absensi_app.entity.Absensi;
 import com.absensi.absensi_app.entity.User;
 import com.absensi.absensi_app.enums.AbsensiStatus;
+import com.absensi.absensi_app.enums.AbsensiType;
 import com.absensi.absensi_app.strategy.CheckInStrategy;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,7 +23,7 @@ public class WfoCheckInStrategy implements CheckInStrategy {
   }
 
   @Override
-  public boolean supports(String type) {
-    return "WFO".equalsIgnoreCase(type);
+  public boolean supports(AbsensiType type) {
+    return AbsensiType.WFO == type;
   }
 }

@@ -11,8 +11,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,9 +46,10 @@ public class AbsensiController {
   @Operation(
       summary = "Get History Absensi",
       description = "Mengambil riwayat absensi user tertentu")
-  public ResponseEntity<ApiResponse<List<AbsensiResponse>>> getHistory(@PathVariable Long userId) {
-    List<Absensi> absensiList = absensiService.getAttendanceByUser(userId);
-    List<AbsensiResponse> responses = absensiMapper.toResponseList(absensiList);
+  public ResponseEntity<ApiResponse<Page<AbsensiResponse>>> getHistory(
+      @PathVariable Long userId, Pageable pageable) {
+    Page<Absensi> absensiPage = absensiService.getAttendanceByUser(userId, pageable);
+    Page<AbsensiResponse> responses = absensiPage.map(absensiMapper::toResponse);
     return ResponseEntity.ok(ApiMapper.success("Berhasil mengambil riwayat absensi", responses));
   }
 }

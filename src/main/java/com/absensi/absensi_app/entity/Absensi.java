@@ -18,8 +18,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 @Data
 @NoArgsConstructor
@@ -27,7 +25,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Builder
 @Entity
 @Table(name = "absensis")
-public class Absensi {
+public class Absensi extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,12 +50,4 @@ public class Absensi {
 
   @Column(name = "tanggal")
   private LocalDate tanggal;
-
-  @CreationTimestamp
-  @Column(name = "createdAt", updatable = false)
-  private LocalDateTime createdAt;
-
-  @UpdateTimestamp
-  @Column(name = "updatedAt")
-  private LocalDateTime updatedAt;
 }

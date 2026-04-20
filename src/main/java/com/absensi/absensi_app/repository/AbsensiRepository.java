@@ -5,13 +5,15 @@ import com.absensi.absensi_app.enums.AbsensiStatus;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AbsensiRepository extends JpaRepository<Absensi, Long> {
 
-  List<Absensi> findByUserId(Long userId);
+  Page<Absensi> findByUserId(Long userId, Pageable pageable);
 
   List<Absensi> findByTanggal(LocalDate tanggal);
 
