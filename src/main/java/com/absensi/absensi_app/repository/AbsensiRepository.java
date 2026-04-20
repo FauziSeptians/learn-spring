@@ -19,4 +19,6 @@ public interface AbsensiRepository extends JpaRepository<Absensi, Long> {
     Optional<Absensi> findByUserIdAndTanggal(Long userId, LocalDate tanggal);
 
     List<Absensi> findByStatus (AbsensiStatus status);
+
+    Optional<Absensi> findFirstByUserIdOrderByCheckInDesc(Long userId);
 }
