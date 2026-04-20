@@ -1,5 +1,6 @@
 package com.absensi.absensi_app.services.impl;
 
+
 import com.absensi.absensi_app.dto.request.LoginRequest;
 import com.absensi.absensi_app.dto.request.RegisterRequest;
 import com.absensi.absensi_app.dto.response.LoginResponse;
@@ -11,6 +12,7 @@ import com.absensi.absensi_app.services.AuthService;
 import com.absensi.absensi_app.util.UserMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,6 +23,8 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserMapper userMapper;
 
+    private final PasswordEncoder passwordEncoder;
+
     @Override
     @Transactional
     public UserResponse register(RegisterRequest request) {
@@ -29,7 +33,9 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Email sudah terdaftar!");
         }
 
-        User user = User.builder().name(request.getName()).email(request.getEmail()).password(request.getPassword()).role(Role.EMPLOYEE).build();
+        String hashedPassword = passwordEncoder.encode(request.getPassword());
+
+        User user = User.builder().name(request.getName()).email(request.getEmail()).password(hashedPassword).role(Role.EMPLOYEE).build();
 
         User savedUser = userRepository.save(user);
 
@@ -48,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(request.getEmail());
         String password = user.getPassword();
 
-        if(!password.equals(request.getPassword())){
+        if(passwordEncoder.matches(password, request.getPassword())){
             throw new RuntimeException("Data yang kamu masukan salah!");
         }
 
