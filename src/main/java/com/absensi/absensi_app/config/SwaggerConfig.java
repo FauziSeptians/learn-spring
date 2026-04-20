@@ -12,29 +12,24 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SwaggerConfig {
 
-    @Bean
-    public OpenAPI openAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Absensi App API")
-                        .description("API Documentation untuk Aplikasi Absensi")
-                        .version("1.0.0")
-                        .contact(new Contact()
-                                .name("Absensi App")
-                                .email("admin@absensi.com")
-                        )
-                )
-                .addSecurityItem(new SecurityRequirement()
-                        .addList("Bearer Authentication")
-                )
-                .components(new Components()
-                        .addSecuritySchemes("Bearer Authentication",
-                                new SecurityScheme()
-                                        .type(SecurityScheme.Type.HTTP)
-                                        .scheme("bearer")
-                                        .bearerFormat("JWT")
-                                        .description("Masukkan JWT Token disini")
-                        )
-                );
-    }
+  @Bean
+  public OpenAPI openAPI() {
+    return new OpenAPI()
+        .info(
+            new Info()
+                .title("Absensi App API")
+                .description("API Documentation untuk Aplikasi Absensi")
+                .version("1.0.0")
+                .contact(new Contact().name("Absensi App").email("admin@absensi.com")))
+        .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
+        .components(
+            new Components()
+                .addSecuritySchemes(
+                    "Bearer Authentication",
+                    new SecurityScheme()
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT")
+                        .description("Masukkan JWT Token disini")));
+  }
 }

@@ -12,15 +12,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -30,35 +29,35 @@ import java.time.LocalDateTime;
 @Table(name = "absensis")
 public class Absensi {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
 
-    @Column(name = "checkIn", nullable = false)
-    private LocalDateTime checkIn;
+  @Column(name = "checkIn", nullable = false)
+  private LocalDateTime checkIn;
 
-    @Column(name = "checkOut")
-    private LocalDateTime checkOut;
+  @Column(name = "checkOut")
+  private LocalDateTime checkOut;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private AbsensiStatus status;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "status", nullable = false)
+  private AbsensiStatus status;
 
-    @Column(name = "keterangan")
-    private String keterangan;
+  @Column(name = "keterangan")
+  private String keterangan;
 
-    @Column(name = "tanggal")
-    private LocalDate tanggal;
+  @Column(name = "tanggal")
+  private LocalDate tanggal;
 
-    @CreationTimestamp
-    @Column(name = "createdAt", updatable = false)
-    private LocalDateTime createdAt;
+  @CreationTimestamp
+  @Column(name = "createdAt", updatable = false)
+  private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updatedAt")
-    private LocalDateTime updatedAt;
+  @UpdateTimestamp
+  @Column(name = "updatedAt")
+  private LocalDateTime updatedAt;
 }

@@ -8,6 +8,7 @@ import com.absensi.absensi_app.util.ApiMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -28,43 +27,46 @@ import java.util.List;
 @SecurityRequirement(name = "Bearer Authentication")
 public class UserController {
 
-    private final UserServiceImpl userService;
+  private final UserServiceImpl userService;
 
-    @GetMapping
-    @Operation(summary = "Get semua user", description = "Mengambil semua data user")
-    public ResponseEntity<ApiResponse<List<UserResponse>>> findAll() {
+  @GetMapping
+  @Operation(summary = "Get semua user", description = "Mengambil semua data user")
+  public ResponseEntity<ApiResponse<List<UserResponse>>> findAll() {
 
-        List<UserResponse> users = userService.findAll();
+    List<UserResponse> users = userService.findAll();
 
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(ApiMapper.success("sukses mengambil semua data user", users));
-    }
+    return ResponseEntity.status(HttpStatus.ACCEPTED)
+        .body(ApiMapper.success("sukses mengambil semua data user", users));
+  }
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Get user by ID", description = "Mengambil data user berdasarkan ID")
-    public ResponseEntity<ApiResponse<UserResponse>> findById(@PathVariable Long id) {
+  @GetMapping("/{id}")
+  @Operation(summary = "Get user by ID", description = "Mengambil data user berdasarkan ID")
+  public ResponseEntity<ApiResponse<UserResponse>> findById(@PathVariable Long id) {
 
-        UserResponse user = userService.findById(id);
+    UserResponse user = userService.findById(id);
 
-        return ResponseEntity.status((HttpStatus.ACCEPTED)).body(ApiMapper.success("sukses mengambil data", user));
-    }
+    return ResponseEntity.status((HttpStatus.ACCEPTED))
+        .body(ApiMapper.success("sukses mengambil data", user));
+  }
 
-    @PutMapping("/{id}")
-    @Operation(summary = "Update user", description = "Update data user berdasarkan ID")
-    public ResponseEntity<ApiResponse<UserResponse>> update(
-        @PathVariable Long id,
-        @RequestBody RegisterRequest request) {
+  @PutMapping("/{id}")
+  @Operation(summary = "Update user", description = "Update data user berdasarkan ID")
+  public ResponseEntity<ApiResponse<UserResponse>> update(
+      @PathVariable Long id, @RequestBody RegisterRequest request) {
 
-        UserResponse user = userService.update(id, request);
+    UserResponse user = userService.update(id, request);
 
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(ApiMapper.success("sukses melakukan perubahan data", user));
-    }
+    return ResponseEntity.status(HttpStatus.ACCEPTED)
+        .body(ApiMapper.success("sukses melakukan perubahan data", user));
+  }
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Delete user", description = "Hapus user berdasarkan ID")
-    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+  @DeleteMapping("/{id}")
+  @Operation(summary = "Delete user", description = "Hapus user berdasarkan ID")
+  public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
 
-        userService.delete(id);
+    userService.delete(id);
 
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(ApiMapper.success("sukses menghapus data"));
-    }
+    return ResponseEntity.status(HttpStatus.ACCEPTED)
+        .body(ApiMapper.success("sukses menghapus data"));
+  }
 }

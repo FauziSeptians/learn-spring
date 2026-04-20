@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class CheckOutRequest {
-    private String keterangan;
+  private String keterangan;
 }

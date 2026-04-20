@@ -6,54 +6,58 @@ import com.absensi.absensi_app.repository.AbsensiRepository;
 import com.absensi.absensi_app.repository.UserRepository;
 import com.absensi.absensi_app.services.AbsensiService;
 import com.absensi.absensi_app.strategy.CheckInStrategy;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class AbsensiServiceImpl implements AbsensiService {
 
-    private final AbsensiRepository absensiRepository;
-    private final UserRepository userRepository;
-    private final List<CheckInStrategy> strategies;
+  private final AbsensiRepository absensiRepository;
+  private final UserRepository userRepository;
+  private final List<CheckInStrategy> strategies;
 
-    @Override
-    @Transactional
-    public void clockIn(Long userId, String type, String keterangan) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User tidak ditemukan"));
+  @Override
+  @Transactional
+  public void clockIn(Long userId, String type, String keterangan) {
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new RuntimeException("User tidak ditemukan"));
 
-        // Strategy Pattern: Mencari strategy yang sesuai
-        CheckInStrategy strategy = strategies.stream()
-                .filter(s -> s.supports(type))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Tipe absensi '" + type + "' tidak didukung"));
+    // Strategy Pattern: Mencari strategy yang sesuai
+    CheckInStrategy strategy =
+        strategies.stream()
+            .filter(s -> s.supports(type))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Tipe absensi '" + type + "' tidak didukung"));
 
-        Absensi absensi = strategy.checkIn(user, keterangan);
-        absensiRepository.save(absensi);
+    Absensi absensi = strategy.checkIn(user, keterangan);
+    absensiRepository.save(absensi);
+  }
+
+  @Override
+  @Transactional
+  public void clockOut(Long userId) {
+    // Logika clock out sederhana
+    Absensi absensi =
+        absensiRepository
+            .findFirstByUserIdOrderByCheckInDesc(userId)
+            .orElseThrow(() -> new RuntimeException("Data absensi tidak ditemukan"));
+
+    if (absensi.getCheckOut() != null) {
+      throw new RuntimeException("Anda sudah melakukan clock out hari ini");
     }
 
-    @Override
-    @Transactional
-    public void clockOut(Long userId) {
-        // Logika clock out sederhana
-        Absensi absensi = absensiRepository.findFirstByUserIdOrderByCheckInDesc(userId)
-                .orElseThrow(() -> new RuntimeException("Data absensi tidak ditemukan"));
+    absensi.setCheckOut(LocalDateTime.now());
+    absensiRepository.save(absensi);
+  }
 
-        if (absensi.getCheckOut() != null) {
-            throw new RuntimeException("Anda sudah melakukan clock out hari ini");
-        }
-
-        absensi.setCheckOut(LocalDateTime.now());
-        absensiRepository.save(absensi);
-    }
-
-    @Override
-    public List<Absensi> getAttendanceByUser(Long userId) {
-        return absensiRepository.findByUserId(userId);
-    }
+  @Override
+  public List<Absensi> getAttendanceByUser(Long userId) {
+    return absensiRepository.findByUserId(userId);
+  }
 }

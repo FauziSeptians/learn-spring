@@ -22,12 +22,14 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Auth", description = "API untuk authentication")
 public class AuthController {
 
-    private final AuthService authService;
+  private final AuthService authService;
 
-    @PostMapping("/register")
-    @Operation(summary = "Register user baru", description = "Membuat user baru")
-    public ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody RegisterRequest request) {
-        UserResponse user = authService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiMapper.success("Sukses membuat user baru", user));
-    }
+  @PostMapping("/register")
+  @Operation(summary = "Register user baru", description = "Membuat user baru")
+  public ResponseEntity<ApiResponse<UserResponse>> register(
+      @Valid @RequestBody RegisterRequest request) {
+    UserResponse user = authService.register(request);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiMapper.success("Sukses membuat user baru", user));
+  }
 }
