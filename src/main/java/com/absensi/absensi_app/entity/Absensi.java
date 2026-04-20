@@ -19,20 +19,21 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "absensis")
 public class Absensi {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name =  "userId", unique = true , nullable = false)
-    @ManyToOne()
-    @JoinColumn(name = "userId", nullable = false)
-    private String userId;
+    // ✅ Fix: Hapus @Column, ganti tipe String ke User, pakai @JoinColumn saja
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user; // ← Ganti String userId ke User user
 
     @Column(name = "checkIn", nullable = false)
     private LocalDateTime checkIn;
 
     @Column(name = "checkOut")
-    private  LocalDateTime checkOut;
+    private LocalDateTime checkOut;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)

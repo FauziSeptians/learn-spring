@@ -39,7 +39,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public LoginResponse login(LoginRequest request) {
 
-        boolean isUserExist = userRepository.existsByEmail(request.getEmail()).booleanValue();
+        boolean isUserExist = userRepository.existsByEmail(request.getEmail());
 
         if(!isUserExist){
             throw  new RuntimeException("User tidak terdaftar");
