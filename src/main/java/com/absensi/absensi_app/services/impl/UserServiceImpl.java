@@ -3,11 +3,13 @@ package com.absensi.absensi_app.services.impl;
 import com.absensi.absensi_app.dto.request.RegisterRequest;
 import com.absensi.absensi_app.dto.response.UserResponse;
 import com.absensi.absensi_app.entity.User;
+import com.absensi.absensi_app.exception.ApiException;
 import com.absensi.absensi_app.repository.UserRepository;
 import com.absensi.absensi_app.services.UserService;
 import com.absensi.absensi_app.util.UserMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,7 +25,7 @@ public class UserServiceImpl implements UserService {
     public UserResponse findById(Long id) {
 
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User tidak ditemukan!"));
+                .orElseThrow(() -> new ApiException("User tidak ditemukan!", HttpStatus.NOT_FOUND));
 
         return userMapper.toResponse(user);
     }
@@ -37,7 +39,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void delete(Long id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User tidak ditemukan!"));
+        User user = userRepository.findById(id).orElseThrow(() -> new ApiException("User tidak ditemukan!", HttpStatus.NOT_FOUND));
 
         userRepository.delete(user);
     }
@@ -45,7 +47,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserResponse update(Long id, RegisterRequest request) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User tidak ditemukan!"));
+        User user = userRepository.findById(id).orElseThrow(() -> new ApiException("User tidak ditemukan!", HttpStatus.NOT_FOUND));
 
         user.setName(request.getName());
         user.setEmail(request.getEmail());

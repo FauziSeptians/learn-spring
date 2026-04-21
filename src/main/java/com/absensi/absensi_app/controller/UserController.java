@@ -36,7 +36,7 @@ public class UserController {
 
         List<UserResponse> users = userService.findAll();
 
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(ApiMapper.success("sukses mengambil semua data user", users));
+        return ResponseEntity.ok(ApiMapper.success("sukses mengambil semua data user", users));
     }
 
     @GetMapping("/{id}")
@@ -45,7 +45,7 @@ public class UserController {
 
         UserResponse user = userService.findById(id);
 
-        return ResponseEntity.status((HttpStatus.ACCEPTED)).body(ApiMapper.success("sukses mengambil data", user));
+        return ResponseEntity.ok(ApiMapper.success("sukses mengambil data", user));
     }
 
     @PutMapping("/{id}")
@@ -56,7 +56,7 @@ public class UserController {
 
         UserResponse user = userService.update(id, request);
 
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(ApiMapper.success("sukses melakukan perubahan data", user));
+        return ResponseEntity.ok(ApiMapper.success("sukses melakukan perubahan data", user));
     }
 
     @DeleteMapping("/{id}")
@@ -65,6 +65,6 @@ public class UserController {
 
         userService.delete(id);
 
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(ApiMapper.success("sukses menghapus data"));
+        return ResponseEntity.ok(ApiMapper.success("sukses menghapus data"));
     }
 }

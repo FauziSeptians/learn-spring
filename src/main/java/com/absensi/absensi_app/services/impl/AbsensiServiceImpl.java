@@ -2,11 +2,13 @@ package com.absensi.absensi_app.services.impl;
 
 import com.absensi.absensi_app.entity.Absensi;
 import com.absensi.absensi_app.entity.User;
+import com.absensi.absensi_app.exception.ApiException;
 import com.absensi.absensi_app.repository.AbsensiRepository;
 import com.absensi.absensi_app.repository.UserRepository;
 import com.absensi.absensi_app.services.AbsensiService;
 import com.absensi.absensi_app.strategy.CheckInStrategy;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,13 +27,13 @@ public class AbsensiServiceImpl implements AbsensiService {
     @Transactional
     public void clockIn(Long userId, String type, String keterangan) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User tidak ditemukan"));
+                .orElseThrow(() -> new ApiException("User tidak ditemukan", HttpStatus.NOT_FOUND));
 
         // Strategy Pattern: Mencari strategy yang sesuai
         CheckInStrategy strategy = strategies.stream()
                 .filter(s -> s.supports(type))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Tipe absensi '" + type + "' tidak didukung"));
+                .orElseThrow(() -> new ApiException("Tipe absensi '" + type + "' tidak didukung", HttpStatus.BAD_REQUEST));
 
         Absensi absensi = strategy.checkIn(user, keterangan);
         absensiRepository.save(absensi);
@@ -42,10 +44,10 @@ public class AbsensiServiceImpl implements AbsensiService {
     public void clockOut(Long userId) {
         // Logika clock out sederhana
         Absensi absensi = absensiRepository.findFirstByUserIdOrderByCheckInDesc(userId)
-                .orElseThrow(() -> new RuntimeException("Data absensi tidak ditemukan"));
+                .orElseThrow(() -> new ApiException("Data absensi tidak ditemukan", HttpStatus.NOT_FOUND));
 
         if (absensi.getCheckOut() != null) {
-            throw new RuntimeException("Anda sudah melakukan clock out hari ini");
+            throw new ApiException("Anda sudah melakukan clock out hari ini", HttpStatus.BAD_REQUEST);
         }
 
         absensi.setCheckOut(LocalDateTime.now());

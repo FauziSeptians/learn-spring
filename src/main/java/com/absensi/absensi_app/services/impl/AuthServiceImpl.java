@@ -7,11 +7,13 @@ import com.absensi.absensi_app.dto.response.LoginResponse;
 import com.absensi.absensi_app.dto.response.UserResponse;
 import com.absensi.absensi_app.entity.User;
 import com.absensi.absensi_app.enums.Role;
+import com.absensi.absensi_app.exception.ApiException;
 import com.absensi.absensi_app.repository.UserRepository;
 import com.absensi.absensi_app.services.AuthService;
 import com.absensi.absensi_app.util.UserMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +32,7 @@ public class AuthServiceImpl implements AuthService {
     public UserResponse register(RegisterRequest request) {
 
         if(userRepository.existsByEmail(request.getEmail())){
-            throw new com.absensi.absensi_app.exception.ApiException("Email sudah terdaftar!", org.springframework.http.HttpStatus.BAD_REQUEST);
+            throw new ApiException("Email sudah terdaftar!", HttpStatus.BAD_REQUEST);
         }
 
         String hashedPassword = passwordEncoder.encode(request.getPassword());
@@ -48,13 +50,13 @@ public class AuthServiceImpl implements AuthService {
         boolean isUserExist = userRepository.existsByEmail(request.getEmail());
 
         if(!isUserExist){
-            throw new com.absensi.absensi_app.exception.ApiException("User tidak terdaftar", org.springframework.http.HttpStatus.NOT_FOUND);
+            throw new ApiException("User tidak terdaftar", HttpStatus.NOT_FOUND);
         }
 
         User user = userRepository.findByEmail(request.getEmail());
 
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
-            throw new com.absensi.absensi_app.exception.ApiException("Email atau Password salah!", org.springframework.http.HttpStatus.UNAUTHORIZED);
+            throw new ApiException("Email atau Password salah!", HttpStatus.UNAUTHORIZED);
         }
 
         return LoginResponse.builder().email(user.getEmail()).name(user.getName()).token("LOREM").build();

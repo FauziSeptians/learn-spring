@@ -28,6 +28,6 @@ public class AuthController {
     @Operation(summary = "Register user baru", description = "Membuat user baru")
     public ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody RegisterRequest request) {
         UserResponse user = authService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiMapper.success("Sukses membuat user baru", user));
+        return ResponseEntity.ok(ApiMapper.success("Sukses membuat user baru", user));
     }
 }
