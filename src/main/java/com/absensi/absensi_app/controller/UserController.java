@@ -2,6 +2,7 @@ package com.absensi.absensi_app.controller;
 
 import com.absensi.absensi_app.dto.request.RegisterRequest;
 import com.absensi.absensi_app.dto.response.ApiResponse;
+import com.absensi.absensi_app.dto.response.PageResponse;
 import com.absensi.absensi_app.dto.response.UserResponse;
 import com.absensi.absensi_app.services.impl.UserServiceImpl;
 import com.absensi.absensi_app.util.ApiMapper;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -32,9 +34,11 @@ public class UserController {
 
     @GetMapping
     @Operation(summary = "Get semua user", description = "Mengambil semua data user")
-    public ResponseEntity<ApiResponse<List<UserResponse>>> findAll() {
+    public ResponseEntity<ApiResponse<PageResponse<UserResponse>>> findAll(
+        @RequestParam(defaultValue = "1")   int page,
+        @RequestParam(defaultValue = "10")  int size) {
 
-        List<UserResponse> users = userService.findAll();
+        PageResponse<UserResponse> users = userService.findAll(page, size);
 
         return ResponseEntity.ok(ApiMapper.success("sukses mengambil semua data user", users));
     }

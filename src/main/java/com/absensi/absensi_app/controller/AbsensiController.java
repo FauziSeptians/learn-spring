@@ -3,6 +3,7 @@ package com.absensi.absensi_app.controller;
 import com.absensi.absensi_app.dto.request.CheckInRequest;
 import com.absensi.absensi_app.dto.response.AbsensiResponse;
 import com.absensi.absensi_app.dto.response.ApiResponse;
+import com.absensi.absensi_app.dto.response.PageResponse;
 import com.absensi.absensi_app.entity.Absensi;
 import com.absensi.absensi_app.services.AbsensiService;
 import com.absensi.absensi_app.util.AbsensiMapper;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,9 +47,9 @@ public class AbsensiController {
 
     @GetMapping("/history/{userId}")
     @Operation(summary = "Get History Absensi", description = "Mengambil riwayat absensi user tertentu")
-    public ResponseEntity<ApiResponse<List<AbsensiResponse>>> getHistory(@PathVariable Long userId) {
-        List<Absensi> absensiList = absensiService.getAttendanceByUser(userId);
-        List<AbsensiResponse> responses = absensiMapper.toResponseList(absensiList);
-        return ResponseEntity.ok(ApiMapper.success("Berhasil mengambil riwayat absensi", responses));
+    public ResponseEntity<ApiResponse<PageResponse<AbsensiResponse>>> getHistory(@PathVariable Long userId, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
+        PageResponse<AbsensiResponse> absensiList = absensiService.getAttendanceByUser(userId, page, size);
+
+        return ResponseEntity.ok(ApiMapper.success("Berhasil mengambil riwayat absensi", absensiList));
     }
 }

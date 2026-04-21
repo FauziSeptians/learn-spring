@@ -10,21 +10,21 @@ import java.util.stream.Collectors;
 @Component
 public class AbsensiMapper {
 
-    public AbsensiResponse toResponse(Absensi absensi) {
+    public static AbsensiResponse toResponse(Absensi absensi) {
         return AbsensiResponse.builder()
-                .id(absensi.getId())
-                .userName(absensi.getUser().getName())
-                .checkIn(absensi.getCheckIn())
-                .checkOut(absensi.getCheckOut())
-                .status(absensi.getStatus())
-                .keterangan(absensi.getKeterangan())
-                .tanggal(absensi.getTanggal())
-                .build();
+            .id(absensi.getId())
+            .userName(absensi.getUser().getName())
+            .checkIn(absensi.getCheckIn())
+            .checkOut(absensi.getCheckOut())
+            .status(absensi.getStatus())
+            .keterangan(absensi.getKeterangan())
+            .tanggal(absensi.getTanggal())
+            .build();
     }
 
-    public List<AbsensiResponse> toResponseList(List<Absensi> absensis) {
+    public static List<AbsensiResponse> toResponseList(List<Absensi> absensis) {
         return absensis.stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
+            .map(AbsensiMapper::toResponse)
+            .collect(Collectors.toList());
     }
 }
