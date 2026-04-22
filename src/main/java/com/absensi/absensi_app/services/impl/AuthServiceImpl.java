@@ -10,6 +10,7 @@ import com.absensi.absensi_app.enums.Role;
 import com.absensi.absensi_app.exception.ApiException;
 import com.absensi.absensi_app.repository.UserRepository;
 import com.absensi.absensi_app.services.AuthService;
+import com.absensi.absensi_app.services.JwtService;
 import com.absensi.absensi_app.util.UserMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,8 @@ public class AuthServiceImpl implements AuthService {
     private final UserMapper userMapper;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final JwtService jwtService;
 
     @Override
     @Transactional
@@ -59,6 +62,8 @@ public class AuthServiceImpl implements AuthService {
             throw new ApiException("Email atau Password salah!", HttpStatus.UNAUTHORIZED);
         }
 
-        return LoginResponse.builder().email(user.getEmail()).name(user.getName()).token("LOREM").build();
+        String jwtToken = jwtService.generateToken(user);
+
+        return LoginResponse.builder().email(user.getEmail()).name(user.getName()).token(jwtToken).build();
     }
 }

@@ -1,7 +1,9 @@
 package com.absensi.absensi_app.controller;
 
+import com.absensi.absensi_app.dto.request.LoginRequest;
 import com.absensi.absensi_app.dto.request.RegisterRequest;
 import com.absensi.absensi_app.dto.response.ApiResponse;
+import com.absensi.absensi_app.dto.response.LoginResponse;
 import com.absensi.absensi_app.dto.response.UserResponse;
 import com.absensi.absensi_app.services.AuthService;
 import com.absensi.absensi_app.util.ApiMapper;
@@ -29,5 +31,14 @@ public class AuthController {
     public ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody RegisterRequest request) {
         UserResponse user = authService.register(request);
         return ResponseEntity.ok(ApiMapper.success("Sukses membuat user baru", user));
+    }
+
+
+    @PostMapping("/login")
+    @Operation(summary = "Login user", description = "melakukan login ke system")
+    public ResponseEntity<ApiResponse<LoginResponse>> login (@Valid @RequestBody LoginRequest request){
+        LoginResponse loginRes = authService.login(request);
+
+        return ResponseEntity.ok((ApiMapper.success("Sukses melakukan login", loginRes)));
     }
 }
