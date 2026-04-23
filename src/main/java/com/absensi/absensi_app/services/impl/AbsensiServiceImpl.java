@@ -12,6 +12,7 @@ import com.absensi.absensi_app.strategy.CheckInStrategy;
 import com.absensi.absensi_app.util.AbsensiMapper;
 import com.absensi.absensi_app.util.PaginationMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AbsensiServiceImpl implements AbsensiService {
@@ -36,49 +38,99 @@ public class AbsensiServiceImpl implements AbsensiService {
     @Override
     @Transactional
     public void clockIn(Long userId, String type, String keterangan) {
+
+        log.info("CLOCK_IN_START | userId : [{}], type : [{}], keterangan : [{}]", userId, type, keterangan);
+
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ApiException("User tidak ditemukan", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> {
+                    String errorMessage = "User tidak ditemukan!";
+
+                    log.error("CLOCK_IN_ERROR |  {}", errorMessage);
+
+                    return new ApiException(errorMessage, HttpStatus.NOT_FOUND);
+                });
 
         LocalDate date = LocalDate.now();
 
+        log.debug("CLOCK_IN | date : [{}]", date);
+
         Optional<Absensi> checkAbsensi = absensiRepository.findByUserIdAndTanggal(userId, date);
 
+        log.debug("CLOCK_IN | checkAbsensi : [{}]", checkAbsensi);
+
         if(checkAbsensi.isPresent()){
-            throw  new ApiException("Kamu sudah absen clock-in", HttpStatus.BAD_REQUEST);
+            String errorMessage = "Kamu sudah absen clock-in";
+
+            log.error("CLOCK_IN_ERROR | {}", errorMessage);
+
+            throw  new ApiException(errorMessage, HttpStatus.BAD_REQUEST);
         }
 
-        // Strategy Pattern: Mencari strategy yang sesuai
         CheckInStrategy strategy = strategies.stream()
                 .filter(s -> s.supports(type))
                 .findFirst()
-                .orElseThrow(() -> new ApiException("Tipe absensi '" + type + "' tidak didukung", HttpStatus.BAD_REQUEST));
+                .orElseThrow(() -> {
+                    String errorMessage = "Tipe absensi '" + type + "' tidak didukung";
+
+                    log.error("CLOCK_IN_ERROR | [{}]", errorMessage);
+
+                    return new ApiException(errorMessage, HttpStatus.BAD_REQUEST);
+                });
 
         Absensi absensi = strategy.checkIn(user, keterangan);
         absensiRepository.save(absensi);
+
+        log.info("CLOCK_IN_SUCCESS | Absensi : [{}]", absensi);
     }
 
     @Override
     @Transactional
     public void clockOut(Long userId) {
-        // Logika clock out sederhana
+
         Absensi absensi = absensiRepository.findFirstByUserIdOrderByCheckInDesc(userId)
-                .orElseThrow(() -> new ApiException("Data absensi tidak ditemukan", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> {
+                    String errorMessage = "Data absensi tidak ditemukan";
+
+                    log.error("CLOCK_OUT_ERROR | [{}]", errorMessage);
+
+                    return new ApiException(errorMessage, HttpStatus.NOT_FOUND);
+                });
 
         if (absensi.getCheckOut() != null) {
-            throw new ApiException("Anda sudah melakukan clock out hari ini", HttpStatus.BAD_REQUEST);
+            String errorMessage = "Anda sudah melakukan clock out hari ini";
+
+            log.error("CLOCK_OUT_ERROR | [{}]", errorMessage);
+
+            throw new ApiException(errorMessage, HttpStatus.BAD_REQUEST);
         }
 
         absensi.setCheckOut(LocalDateTime.now());
+
+        log.debug("CLOCK_OUT | Checkout time : [{}]", LocalDateTime.now());
+
         absensiRepository.save(absensi);
+
+        log.info("CLOCK_OUT_SUCCESS | Absensi : [{}]", absensi);
     }
 
     @Override
     public PageResponse<AbsensiResponse> getAttendanceByUser(Long userId, int page, int size) {
+
+        log.info("GET_ATTENDANCE_BY_USER_START | userId : [{}] | page : [{}] | size : [{}]", userId, page
+        , size);
+
         Pageable pageable = PageRequest.of(page - 1, size);
+
+        log.debug("GET_ATTENDANCE_BY_USER | Pageable : [{}]", pageable);
 
         Page<Absensi> absensis = absensiRepository.findByUserId(userId, pageable);
 
         Page<AbsensiResponse> absensiResponse = absensis.map(AbsensiMapper::toResponse);
+
+        log.debug("GET_ATTENDANCE_BY_USER | absensiUser : [{}]", absensiResponse);
+
+        log.info("GET_ATTENDANCE_BY_USER_SUCCESS");
+
         return PaginationMapper.of(absensiResponse);
     }
 }

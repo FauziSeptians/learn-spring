@@ -1,0 +1,29 @@
+<!-- src/main/resources/logback-spring.xml -->
+<configuration>
+
+    <springProfile name="dev">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <!-- INI YANG BIKIN FORMAT JADI RAPI -->
+                <pattern>%d{HH:mm:ss.SSS} | %-5level | [%X{requestId:-NO-ID}] | %-20logger{20} | %msg%n</pattern>
+            </encoder>
+        </appender>
+
+        <root level="DEBUG">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="prod">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%d{HH:mm:ss.SSS} | %-5level | [%X{requestId:-NO-ID}] | %-20logger{20} | %msg%n</pattern>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+</configuration>
