@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
             .status(e.getStatus())
-            .body(ApiMapper.error(e.getStatus().value(), e.getMessage()));
+            .body(ApiMapper.error(e.getStatus().value(), e.getMessage(), e.getErrorData()));
     }
 
     // ✅ 403 - Tidak punya akses

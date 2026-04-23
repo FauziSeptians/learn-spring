@@ -1,6 +1,7 @@
 package com.absensi.absensi_app.services.impl;
 
 import com.absensi.absensi_app.dto.response.AbsensiResponse;
+import com.absensi.absensi_app.dto.response.CheckoutErrorDataResponse;
 import com.absensi.absensi_app.dto.response.PageResponse;
 import com.absensi.absensi_app.entity.Absensi;
 import com.absensi.absensi_app.entity.User;
@@ -22,7 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -66,6 +68,20 @@ public class AbsensiServiceImpl implements AbsensiService {
             throw  new ApiException(errorMessage, HttpStatus.BAD_REQUEST);
         }
 
+        LocalDateTime now = LocalDateTime.now();
+
+        LocalTime entryHours = LocalTime.of(9, 15);
+
+        boolean workingLate = now.toLocalTime().isAfter(entryHours);
+
+        if (workingLate) {
+            String errorMessage = "Kamu telat masuk kantor!";
+
+            log.error("CLOCK_IN_ERROR | {}", errorMessage);
+
+            throw  new ApiException(errorMessage, HttpStatus.BAD_REQUEST);
+        }
+
         CheckInStrategy strategy = strategies.stream()
                 .filter(s -> s.supports(type))
                 .findFirst()
@@ -87,6 +103,8 @@ public class AbsensiServiceImpl implements AbsensiService {
     @Transactional
     public void clockOut(Long userId) {
 
+        final boolean isCheckoutEligieble;
+
         Absensi absensi = absensiRepository.findFirstByUserIdOrderByCheckInDesc(userId)
                 .orElseThrow(() -> {
                     String errorMessage = "Data absensi tidak ditemukan";
@@ -102,6 +120,31 @@ public class AbsensiServiceImpl implements AbsensiService {
             log.error("CLOCK_OUT_ERROR | [{}]", errorMessage);
 
             throw new ApiException(errorMessage, HttpStatus.BAD_REQUEST);
+        }
+
+        long workingHourRange = ChronoUnit.HOURS.between(absensi.getCheckIn(), LocalDateTime.now());
+
+        isCheckoutEligieble = workingHourRange >= 9;
+
+        if(!isCheckoutEligieble){
+            String errorMessage = "Anda belum memenuhi jam bekerja!";
+
+            log.error("CLOCK_OUT_ERROR | [{}]", errorMessage);
+
+            LocalDateTime checkInTime = absensi.getCheckIn();
+            LocalDateTime now = LocalDateTime.now();
+
+            long workingHour = ChronoUnit.HOURS.between(checkInTime, now);
+            long workingMinute = ChronoUnit.MINUTES.between(checkInTime, now) % 60;
+
+            CheckoutErrorDataResponse errorData = CheckoutErrorDataResponse.builder()
+                .clockIn(checkInTime)
+                .eligiebleCheckOut(checkInTime.plusHours(9))
+                .workingOutInProgress(workingHour + " jam " + workingMinute + " menit")
+                .minimumWorkingTime("9 jam")
+                .build();
+
+            throw new ApiException(errorMessage, HttpStatus.BAD_REQUEST, errorData);
         }
 
         absensi.setCheckOut(LocalDateTime.now());
