@@ -11,6 +11,7 @@ import com.absensi.absensi_app.exception.ApiException;
 import com.absensi.absensi_app.repository.UserRepository;
 import com.absensi.absensi_app.services.AuthService;
 import com.absensi.absensi_app.services.JwtService;
+import com.absensi.absensi_app.annotation.LogExecutionTime;
 import com.absensi.absensi_app.util.UserMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
+    @LogExecutionTime
     public UserResponse register(RegisterRequest request) {
 
         if(userRepository.existsByEmail(request.getEmail())){
@@ -48,6 +50,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @LogExecutionTime
     public LoginResponse login(LoginRequest request) {
 
         boolean isUserExist = userRepository.existsByEmail(request.getEmail());

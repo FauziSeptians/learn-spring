@@ -10,6 +10,7 @@ import com.absensi.absensi_app.repository.AbsensiRepository;
 import com.absensi.absensi_app.repository.UserRepository;
 import com.absensi.absensi_app.services.AbsensiService;
 import com.absensi.absensi_app.strategy.CheckInStrategy;
+import com.absensi.absensi_app.annotation.LogExecutionTime;
 import com.absensi.absensi_app.util.AbsensiMapper;
 import com.absensi.absensi_app.util.PaginationMapper;
 import lombok.RequiredArgsConstructor;
@@ -40,9 +41,8 @@ public class AbsensiServiceImpl implements AbsensiService {
 
     @Override
     @Transactional
+    @LogExecutionTime
     public void clockIn(Long userId, String type, String keterangan) {
-
-        log.info("CLOCK_IN_START | userId : [{}], type : [{}], keterangan : [{}]", userId, type, keterangan);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> {
@@ -96,12 +96,11 @@ public class AbsensiServiceImpl implements AbsensiService {
 
         Absensi absensi = strategy.checkIn(user, keterangan);
         absensiRepository.save(absensi);
-
-        log.info("CLOCK_IN_SUCCESS | Absensi : [{}]", absensi);
     }
 
     @Override
     @Transactional
+    @LogExecutionTime
     public void clockOut(Long userId) {
 
         final boolean isCheckoutEligieble;
@@ -153,15 +152,11 @@ public class AbsensiServiceImpl implements AbsensiService {
         log.debug("CLOCK_OUT | Checkout time : [{}]", LocalDateTime.now());
 
         absensiRepository.save(absensi);
-
-        log.info("CLOCK_OUT_SUCCESS | Absensi : [{}]", absensi);
     }
 
     @Override
+    @LogExecutionTime
     public PageResponse<AbsensiResponse> getAttendanceByUser(Long userId, int page, int size) {
-
-        log.info("GET_ATTENDANCE_BY_USER_START | userId : [{}] | page : [{}] | size : [{}]", userId, page
-        , size);
 
         Pageable pageable = PageRequest.of(page - 1, size);
 
@@ -172,8 +167,6 @@ public class AbsensiServiceImpl implements AbsensiService {
         Page<AbsensiResponse> absensiResponse = absensis.map(absensiMapper::toResponse);
 
         log.debug("GET_ATTENDANCE_BY_USER | absensiUser : [{}]", absensiResponse);
-
-        log.info("GET_ATTENDANCE_BY_USER_SUCCESS");
 
         return PaginationMapper.of(absensiResponse);
     }
