@@ -106,7 +106,7 @@ public class AbsensiServiceImpl implements AbsensiService {
 
         final boolean isCheckoutEligieble;
 
-        Absensi absensi = absensiRepository.findFirstByUserIdOrderByCheckInDesc(userId)
+        Absensi absensi = absensiRepository.findByTanggal(LocalDate.now())
                 .orElseThrow(() -> {
                     String errorMessage = "Data absensi tidak ditemukan";
 

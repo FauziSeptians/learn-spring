@@ -17,7 +17,7 @@ public interface AbsensiRepository extends JpaRepository<Absensi, Long> {
 
     Page<Absensi> findByUserId(Long userId, Pageable page);
 
-    List<Absensi> findByTanggal(LocalDate tanggal);
+    Optional<Absensi> findByTanggal(LocalDate tanggal);
 
     Optional<Absensi> findByUserIdAndTanggal(Long userId, LocalDate tanggal);
 
