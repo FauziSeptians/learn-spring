@@ -2,8 +2,7 @@ package com.absensi.absensi_app.dto.response;
 
 import com.absensi.absensi_app.enums.AbsensiStatus;
 import com.absensi.absensi_app.serializer.IndonesiaDateTimeSerializer;
-import com.absensi.absensi_app.util.IndonesiaDateSerializer;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.absensi.absensi_app.serializer.IndonesiaDateSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Builder;
 import lombok.Data;
