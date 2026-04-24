@@ -36,6 +36,7 @@ public class AbsensiServiceImpl implements AbsensiService {
     private final AbsensiRepository absensiRepository;
     private final UserRepository userRepository;
     private final List<CheckInStrategy> strategies;
+    private final AbsensiMapper absensiMapper;
 
     @Override
     @Transactional
@@ -168,7 +169,7 @@ public class AbsensiServiceImpl implements AbsensiService {
 
         Page<Absensi> absensis = absensiRepository.findByUserId(userId, pageable);
 
-        Page<AbsensiResponse> absensiResponse = absensis.map(AbsensiMapper::toResponse);
+        Page<AbsensiResponse> absensiResponse = absensis.map(absensiMapper::toResponse);
 
         log.debug("GET_ATTENDANCE_BY_USER | absensiUser : [{}]", absensiResponse);
 

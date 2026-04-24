@@ -2,29 +2,14 @@ package com.absensi.absensi_app.util;
 
 import com.absensi.absensi_app.dto.response.AbsensiResponse;
 import com.absensi.absensi_app.entity.Absensi;
+import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
-public class AbsensiMapper {
+@Mapper(componentModel = "spring")
+public interface AbsensiMapper {
 
-    public static AbsensiResponse toResponse(Absensi absensi) {
-        return AbsensiResponse.builder()
-            .id(absensi.getId())
-            .userName(absensi.getUser().getName())
-            .checkIn(absensi.getCheckIn())
-            .checkOut(absensi.getCheckOut())
-            .status(absensi.getStatus())
-            .keterangan(absensi.getKeterangan())
-            .tanggal(absensi.getTanggal())
-            .build();
-    }
-
-    public static List<AbsensiResponse> toResponseList(List<Absensi> absensis) {
-        return absensis.stream()
-            .map(AbsensiMapper::toResponse)
-            .collect(Collectors.toList());
-    }
+    AbsensiResponse toResponse(Absensi absensi);
 }
