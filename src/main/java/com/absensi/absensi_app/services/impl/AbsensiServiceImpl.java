@@ -6,6 +6,8 @@ import com.absensi.absensi_app.dto.response.PageResponse;
 import com.absensi.absensi_app.entity.Absensi;
 import com.absensi.absensi_app.entity.User;
 import com.absensi.absensi_app.exception.ApiException;
+import com.absensi.absensi_app.dto.rabbitmq.NotificationPayload;
+import com.absensi.absensi_app.messages.producer.NotificationProducer;
 import com.absensi.absensi_app.repository.AbsensiRepository;
 import com.absensi.absensi_app.repository.UserRepository;
 import com.absensi.absensi_app.services.AbsensiService;
@@ -36,6 +38,7 @@ public class AbsensiServiceImpl implements AbsensiService {
 
     private final AbsensiRepository absensiRepository;
     private final UserRepository userRepository;
+    private final NotificationProducer notificationProducer;
     private final List<CheckInStrategy> strategies;
     private final AbsensiMapper absensiMapper;
 
@@ -75,13 +78,13 @@ public class AbsensiServiceImpl implements AbsensiService {
 
         boolean workingLate = now.toLocalTime().isAfter(entryHours);
 
-        if (workingLate) {
-            String errorMessage = "Kamu telat masuk kantor!";
-
-            log.error("CLOCK_IN_ERROR | {}", errorMessage);
-
-            throw  new ApiException(errorMessage, HttpStatus.BAD_REQUEST);
-        }
+//        if (workingLate) {
+//            String errorMessage = "Kamu telat masuk kantor!";
+//
+//            log.error("CLOCK_IN_ERROR | {}", errorMessage);
+//
+//            throw  new ApiException(errorMessage, HttpStatus.BAD_REQUEST);
+//        }
 
         CheckInStrategy strategy = strategies.stream()
                 .filter(s -> s.supports(type))
@@ -96,6 +99,19 @@ public class AbsensiServiceImpl implements AbsensiService {
 
         Absensi absensi = strategy.checkIn(user, keterangan);
         absensiRepository.save(absensi);
+
+        // [Phase 4] Kirim Pesan ke RabbitMQ
+        NotificationPayload payload = NotificationPayload.builder()
+                .userId(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .type("CLOCK_IN")
+                .timestamp(absensi.getCheckIn())
+                .message("User " + user.getName() + " melakukan Clock-In pada " + absensi.getCheckIn())
+                .build();
+
+
+        notificationProducer.sendClockInNotification(payload);
     }
 
     @Override
@@ -105,7 +121,7 @@ public class AbsensiServiceImpl implements AbsensiService {
 
         final boolean isCheckoutEligieble;
 
-        Absensi absensi = absensiRepository.findByTanggal(LocalDate.now())
+        Absensi absensi = absensiRepository.findByUserIdAndTanggal(userId, LocalDate.now())
                 .orElseThrow(() -> {
                     String errorMessage = "Data absensi tidak ditemukan";
 
@@ -126,32 +142,43 @@ public class AbsensiServiceImpl implements AbsensiService {
 
         isCheckoutEligieble = workingHourRange >= 9;
 
-        if(!isCheckoutEligieble){
-            String errorMessage = "Anda belum memenuhi jam bekerja!";
-
-            log.error("CLOCK_OUT_ERROR | [{}]", errorMessage);
-
-            LocalDateTime checkInTime = absensi.getCheckIn();
-            LocalDateTime now = LocalDateTime.now();
-
-            long workingHour = ChronoUnit.HOURS.between(checkInTime, now);
-            long workingMinute = ChronoUnit.MINUTES.between(checkInTime, now) % 60;
-
-            CheckoutErrorDataResponse errorData = CheckoutErrorDataResponse.builder()
-                .clockIn(checkInTime)
-                .eligiebleCheckOut(checkInTime.plusHours(9))
-                .workingOutInProgress(workingHour + " jam " + workingMinute + " menit")
-                .minimumWorkingTime("9 jam")
-                .build();
-
-            throw new ApiException(errorMessage, HttpStatus.BAD_REQUEST, errorData);
-        }
+//        if(!isCheckoutEligieble){
+//            String errorMessage = "Anda belum memenuhi jam bekerja!";
+//
+//            log.error("CLOCK_OUT_ERROR | [{}]", errorMessage);
+//
+//            LocalDateTime checkInTime = absensi.getCheckIn();
+//            LocalDateTime now = LocalDateTime.now();
+//
+//            long workingHour = ChronoUnit.HOURS.between(checkInTime, now);
+//            long workingMinute = ChronoUnit.MINUTES.between(checkInTime, now) % 60;
+//
+//            CheckoutErrorDataResponse errorData = CheckoutErrorDataResponse.builder()
+//                .clockIn(checkInTime)
+//                .eligiebleCheckOut(checkInTime.plusHours(9))
+//                .workingOutInProgress(workingHour + " jam " + workingMinute + " menit")
+//                .minimumWorkingTime("9 jam")
+//                .build();
+//
+//            throw new ApiException(errorMessage, HttpStatus.BAD_REQUEST, errorData);
+//        }
 
         absensi.setCheckOut(LocalDateTime.now());
 
         log.debug("CLOCK_OUT | Checkout time : [{}]", LocalDateTime.now());
 
         absensiRepository.save(absensi);
+
+        // [Phase 4] Kirim Pesan ke RabbitMQ
+        NotificationPayload payload = NotificationPayload.builder()
+                .userId(absensi.getUser().getId())
+                .name(absensi.getUser().getName())
+                .email(absensi.getUser().getEmail())
+                .type("CLOCK_OUT")
+                .timestamp(absensi.getCheckOut())
+                .message("User " + absensi.getUser().getName() + " melakukan Clock-Out pada " + absensi.getCheckOut())
+                .build();
+        notificationProducer.sendClockOutNotification(payload);
     }
 
     @Override
