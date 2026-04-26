@@ -17,6 +17,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 
 @Slf4j
 @Service
@@ -26,6 +29,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
+    @Cacheable(value = "users", key = "#id")
     @Override
     public UserResponse findById(Long id) {
 
@@ -62,6 +66,7 @@ public class UserServiceImpl implements UserService {
         return PaginationMapper.of(userResponses);
     }
 
+    @CacheEvict(value = "users", key = "#id")
     @Transactional
     @Override
     public void delete(Long id) {
@@ -81,6 +86,7 @@ public class UserServiceImpl implements UserService {
         log.info("DELETE_SUCCESS | [{}]", id);
     }
 
+    @CachePut(value = "users", key = "#id")
     @Transactional
     @Override
     public UserResponse update(Long id, RegisterRequest request) {
