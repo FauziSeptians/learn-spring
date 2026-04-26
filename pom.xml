@@ -176,6 +176,29 @@
                 </configuration>
             </plugin>
 
+            <!-- JavaDoc Generator: run with `mvn javadoc:javadoc`, then serve via /docs/** -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.6.3</version>
+                <configuration>
+                    <outputDirectory>${project.basedir}/src/main/resources/static/docs</outputDirectory>
+                    <reportOutputDirectory>${project.basedir}/src/main/resources/static/docs</reportOutputDirectory>
+                    <doctitle>Absensi App - JavaDoc</doctitle>
+                    <windowtitle>Absensi App Documentation</windowtitle>
+                    <author>true</author>
+                    <version>true</version>
+                    <use>true</use>
+                    <show>private</show>
+                    <charset>UTF-8</charset>
+                    <encoding>UTF-8</encoding>
+                    <docencoding>UTF-8</docencoding>
+                    <failOnError>false</failOnError>
+                    <additionalOptions>-Xdoclint:none</additionalOptions>
+                </configuration>
+            </plugin>
+
+
             <!-- ✅ Tambah maven-compiler-plugin untuk MapStruct -->
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
