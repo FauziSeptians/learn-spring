@@ -78,13 +78,13 @@ public class AbsensiServiceImpl implements AbsensiService {
 
         boolean workingLate = now.toLocalTime().isAfter(entryHours);
 
-//        if (workingLate) {
-//            String errorMessage = "Kamu telat masuk kantor!";
-//
-//            log.error("CLOCK_IN_ERROR | {}", errorMessage);
-//
-//            throw  new ApiException(errorMessage, HttpStatus.BAD_REQUEST);
-//        }
+        if (workingLate) {
+            String errorMessage = "Kamu telat masuk kantor!";
+
+            log.error("CLOCK_IN_ERROR | {}", errorMessage);
+
+            throw  new ApiException(errorMessage, HttpStatus.BAD_REQUEST);
+        }
 
         CheckInStrategy strategy = strategies.stream()
                 .filter(s -> s.supports(type))
@@ -142,26 +142,26 @@ public class AbsensiServiceImpl implements AbsensiService {
 
         isCheckoutEligieble = workingHourRange >= 9;
 
-//        if(!isCheckoutEligieble){
-//            String errorMessage = "Anda belum memenuhi jam bekerja!";
-//
-//            log.error("CLOCK_OUT_ERROR | [{}]", errorMessage);
-//
-//            LocalDateTime checkInTime = absensi.getCheckIn();
-//            LocalDateTime now = LocalDateTime.now();
-//
-//            long workingHour = ChronoUnit.HOURS.between(checkInTime, now);
-//            long workingMinute = ChronoUnit.MINUTES.between(checkInTime, now) % 60;
-//
-//            CheckoutErrorDataResponse errorData = CheckoutErrorDataResponse.builder()
-//                .clockIn(checkInTime)
-//                .eligiebleCheckOut(checkInTime.plusHours(9))
-//                .workingOutInProgress(workingHour + " jam " + workingMinute + " menit")
-//                .minimumWorkingTime("9 jam")
-//                .build();
-//
-//            throw new ApiException(errorMessage, HttpStatus.BAD_REQUEST, errorData);
-//        }
+        if(!isCheckoutEligieble){
+            String errorMessage = "Anda belum memenuhi jam bekerja!";
+
+            log.error("CLOCK_OUT_ERROR | [{}]", errorMessage);
+
+            LocalDateTime checkInTime = absensi.getCheckIn();
+            LocalDateTime now = LocalDateTime.now();
+
+            long workingHour = ChronoUnit.HOURS.between(checkInTime, now);
+            long workingMinute = ChronoUnit.MINUTES.between(checkInTime, now) % 60;
+
+            CheckoutErrorDataResponse errorData = CheckoutErrorDataResponse.builder()
+                .clockIn(checkInTime)
+                .eligiebleCheckOut(checkInTime.plusHours(9))
+                .workingOutInProgress(workingHour + " jam " + workingMinute + " menit")
+                .minimumWorkingTime("9 jam")
+                .build();
+
+            throw new ApiException(errorMessage, HttpStatus.BAD_REQUEST, errorData);
+        }
 
         absensi.setCheckOut(LocalDateTime.now());
 
